@@ -11,16 +11,25 @@ namespace Fury
     {
         readonly Dictionary<Type, object> _map;
 
-        public bool Get<T>(out T component) where T : class
+        public T Get<T>() where T : class, new()
         {
-            var ok = _map.TryGetValue(typeof(T), out var result);
-            if (!ok)
+            if (!_map.TryGetValue(typeof(T), out var result))
             {
-                component = default;
+                result = new T();
+                _map.Add(typeof(T), result);
+            }
+            return (T)result;
+        }
+
+        public bool TryGet<T>(out T result)
+        {
+            if (!_map.TryGetValue(typeof(T), out var r))
+            {
+                result = default;
                 return false;
             }
-            component = result as T;
-            return component != null;
+            result = (T)r;
+            return true;
         }
 
         public void Set<T>(T component) where T : class

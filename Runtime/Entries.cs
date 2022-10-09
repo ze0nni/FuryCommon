@@ -11,10 +11,10 @@ namespace Fury
         IEnumerable
         where T : class
     {
-        readonly List<T> _list;
-        readonly List<Identity<T>> _idList;
-        readonly Dictionary<Identity<T>, T> _map;
-        readonly HashSet<Identity<T>> _marked = new HashSet<Identity<T>>();
+        internal readonly List<T> _list;
+        internal readonly List<Identity<T>> _idList;
+        internal readonly Dictionary<Identity<T>, T> _map;
+        internal readonly HashSet<Identity<T>> _marked = new HashSet<Identity<T>>();
 
         public Entries()
         {
