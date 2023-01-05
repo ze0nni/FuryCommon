@@ -50,6 +50,10 @@ namespace Fury
 
         public T this[int index] => _list[index];
 
+        public int IndexOf(T e) => _list.IndexOf(e);
+
+        public int IndexOf(Identity<T> id) => _idList.IndexOf(id);
+
         public void RemoveMarked()
         {
             if (_marked.Count == 0)
