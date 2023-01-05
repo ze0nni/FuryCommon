@@ -48,6 +48,8 @@ namespace Fury
 
         public T this[Identity<T> id] => _map[id];
 
+        public T this[int index] => _list[index];
+
         public void RemoveMarked()
         {
             if (_marked.Count == 0)
