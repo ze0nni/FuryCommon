@@ -29,6 +29,13 @@ namespace Fury
             _idList.Add(id);
         }
 
+        public void Insert(int index, Identity<T>id, T item)
+        {
+            _map.Add(id, item);
+            _list.Insert(index, item);
+            _idList.Insert(index, id);
+        }
+
         public void Mark(Identity<T> id)
         {
             _marked.Add(id);
@@ -74,6 +81,14 @@ namespace Fury
             _map.Remove(id, out var item);
             _list.Remove(item);
             _idList.Remove(id);
+        }
+
+        public void RemoveAt(int index)
+        {
+            var id = _idList[index];
+            _map.Remove(id);
+            _list.RemoveAt(index);
+            _idList.RemoveAt(index);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
