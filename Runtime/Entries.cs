@@ -69,6 +69,13 @@ namespace Fury
             _marked.Clear();
         }            
 
+        public void Remove(Identity<T> id)
+        {
+            _map.Remove(id, out var item);
+            _list.Remove(item);
+            _idList.Remove(id);
+        }
+
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return _list.GetEnumerator();            
