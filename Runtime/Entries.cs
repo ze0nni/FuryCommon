@@ -7,6 +7,7 @@ namespace Fury
 {
     [Serializable]
     public sealed class Entries<T> :
+        ISerializable,
         IEnumerable<T>,
         IEnumerable
         where T : class
