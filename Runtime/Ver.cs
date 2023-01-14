@@ -8,6 +8,8 @@ namespace Fury
     {
         int V;
 
+        public Ver(int v) => V = v;
+
         public static Ver<T> operator ++(Ver<T> v)
         {
             v.V++;
@@ -53,6 +55,11 @@ namespace Fury
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("V", V);
+        }
+
+        public override string ToString()
+        {
+            return $"Ver<{typeof(T).Name}>({V})";
         }
 
         public override bool Equals(object obj)
