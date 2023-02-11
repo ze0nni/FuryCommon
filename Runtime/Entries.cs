@@ -92,6 +92,14 @@ namespace Fury
             _idList.RemoveAt(index);
         }
 
+        public void Clear()
+        {
+            _map.Clear();
+            _list.Clear();
+            _idList.Clear();
+            _marked.Clear();
+        }
+
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return _list.GetEnumerator();            
@@ -101,6 +109,8 @@ namespace Fury
         {
             return _list.GetEnumerator();
         }
+
+        public IEnumerable<Identity<T>> Ids => _idList;
 
         public Entries(SerializationInfo info, StreamingContext context)
         {
