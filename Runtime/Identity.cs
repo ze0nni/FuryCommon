@@ -6,63 +6,52 @@ namespace Fury
     [Serializable]
     public readonly struct Identity<T>
         : IEquatable<Identity<T>>,
-        IComparable<Identity<T>>,
-        ISerializable
+        IComparable<Identity<T>>
         where T : class
     {
-        readonly int _value;
-        public Identity(int value) => _value = value;
+        public readonly int Value;
+        public Identity(int value) => Value = value;
 
         public static Identity<T> Null => new Identity<T>(0);
-        public bool IsNull => _value == 0;
+        public bool IsNull => Value == 0;
 
         public static bool operator ==(Identity<T> l, Identity<T> r)
         {
-            return l._value == r._value;
+            return l.Value == r.Value;
         }
 
         public static bool operator !=(Identity<T> l, Identity<T> r)
         {
-            return l._value != r._value;
+            return l.Value != r.Value;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is Identity<T> other)
             {
-                return other._value == _value;
+                return other.Value == Value;
             }
             return false;
         }
 
         public bool Equals(Identity<T> other)
         {
-            return other._value == _value;
+            return other.Value == Value;
         }
 
         public int CompareTo(Identity<T> other)
         {
-            return _value - other._value;
+            return Value - other.Value;
         }        
 
         public override int GetHashCode()
         {
-            return _value.GetHashCode();
+            return Value.GetHashCode();
         }
 
         public override string ToString()
         {
-            return $"Identity<{typeof(T).Name}>({_value})";
-        }
-
-        public Identity(SerializationInfo info, StreamingContext context)
-        {
-            _value = info.GetInt32("value");
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("value", _value);
+            return $"Identity<{typeof(T).Name}>({Value})";
         }
     }
 }

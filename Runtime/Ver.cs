@@ -4,9 +4,9 @@ using System.Runtime.Serialization;
 namespace Fury
 {
     [Serializable]
-    public struct Ver<T> : ISerializable
+    public struct Ver<T>
     {
-        int V;
+        public int V;
 
         public Ver(int v) => V = v;
 
@@ -44,17 +44,6 @@ namespace Fury
         public static bool operator <=(Ver<T> l, Ver<T> r)
         {
             return l.V <= r.V;
-        }
-
-
-        public Ver(SerializationInfo info, StreamingContext context)
-        {
-            V = info.GetInt32("V");
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("V", V);
         }
 
         public override string ToString()
