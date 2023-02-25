@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -6,6 +7,7 @@ using System.Runtime.Serialization;
 namespace Fury
 {
     [Serializable]
+    [JsonConverter(typeof(EntriesJsonConverter))]
     public sealed class Entries<T> :
         ISerializable,
         IEnumerable<T>,
@@ -102,7 +104,7 @@ namespace Fury
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return _list.GetEnumerator();            
+            return _list.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

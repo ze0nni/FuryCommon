@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using System;
-using UnityEngine;
 
 namespace Fury {
     class VerJsonConverter : JsonConverter
@@ -12,13 +11,11 @@ namespace Fury {
         }
 
         private static Type[] _verConsturctorTypes = new Type[] { typeof(int) };
-        private static object[] _verConsturctorArgs = new object[1];
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var v = Convert.ToInt32(reader.Value);
             var newV = objectType.GetConstructor(_verConsturctorTypes);
-            _verConsturctorArgs[0] = v;
-            return newV.Invoke(_verConsturctorArgs);
+            return newV.Invoke(new object[] { v });
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
