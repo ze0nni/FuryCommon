@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Runtime.Serialization;
 
 namespace Fury
 {
     [Serializable]
+    [JsonConverter(typeof(IdentityJsonConverter))]
     public readonly struct Identity<T>
         : IEquatable<Identity<T>>,
         IComparable<Identity<T>>

@@ -1,9 +1,11 @@
+using Newtonsoft.Json;
 using System;
 using System.Runtime.Serialization;
 
 namespace Fury
 {
     [Serializable]
+    [JsonConverter(typeof(VerJsonConverter))]
     public struct Ver<T>
     {
         public int V;
