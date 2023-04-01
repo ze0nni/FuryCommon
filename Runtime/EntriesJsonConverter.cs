@@ -18,7 +18,6 @@ namespace Fury
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             Contract.Assert(reader.TokenType == JsonToken.StartArray, "Excepted [");
-            reader.Read();
             
             var entryType = objectType.GetGenericArguments()[0];
             var identityType = typeof(Identity<>).MakeGenericType(entryType);
@@ -27,37 +26,19 @@ namespace Fury
             var entrys = new List<object>();
             var ids = new List<object>();
 
-            Contract.Assert(reader.TokenType == JsonToken.StartArray, "Excepted [");
+            var args = new object[2];
             while (true)
             {
                 reader.Read();
                 if (reader.TokenType == JsonToken.EndArray)
                 {
-                    reader.Read();
                     break;
                 }
                 var id = serializer.Deserialize(reader, identityType);
-                ids.Add(id);
-            }
-
-            Contract.Assert(reader.TokenType == JsonToken.StartArray, "Excepted [");
-            while (true)
-            {
                 reader.Read();
-                if (reader.TokenType == JsonToken.EndArray)
-                {
-                    reader.Read();
-                    break;
-                }
                 var entry = serializer.Deserialize(reader, entryType);
-                entrys.Add(entry);
-            }
-
-            var args = new object[2];
-            for (var i = 0; i < ids.Count; i++)
-            {
-                args[0] = ids[i];
-                args[1] = entrys[i];
+                args[0] = id;
+                args[1] = entry;
                 addMethod.Invoke(existingValue, args);
             }
 
@@ -68,25 +49,13 @@ namespace Fury
             var valueType = value.GetType();
             var idsProp = valueType.GetProperty("Ids");
 
+            var ids = ((IEnumerable)idsProp.GetValue(value)).GetEnumerator();
+            var values = ((IEnumerable)value).GetEnumerator();
             writer.WriteStartArray();
             {
-                {
-                    writer.WriteStartArray();
-                    var ids = (IEnumerable)idsProp.GetValue(value);
-                    foreach (var id in ids)
-                    {
-                        serializer.Serialize(writer, id);
-                    }
-                    writer.WriteEndArray();
-                }
-
-                {
-                    writer.WriteStartArray();
-                    foreach (var e in (IEnumerable)value)
-                    {
-                        serializer.Serialize(writer, e);
-                    }
-                    writer.WriteEndArray();
+                while (ids.MoveNext() && values.MoveNext()) {
+                    serializer.Serialize(writer, ids.Current);
+                    serializer.Serialize(writer, values.Current);
                 }
             }
             writer.WriteEndArray();
