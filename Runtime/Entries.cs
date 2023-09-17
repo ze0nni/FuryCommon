@@ -78,7 +78,7 @@ namespace Fury
         {
             foreach (var cursor in _cursors)
             {
-                if (cursor.Id == id)
+                if (cursor.Id == id && _list[cursor.Index].Id == id)
                 {
                     return cursor.Index;
                 }
