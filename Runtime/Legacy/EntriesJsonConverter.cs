@@ -3,10 +3,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using UnityEngine;
 
-namespace Fury
+namespace Fury.Legacy
 {
+    [Obsolete]
     class EntriesJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)

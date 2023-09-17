@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace Fury
+namespace Fury.Legacy
 {
+    [Obsolete]
     public struct KSlot<K, T> where T : Delegate
     {
         internal Dictionary<K, List<T>> _actions;

@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Collections;
 
-namespace Fury
+namespace Fury.Legacy
 {
     [Serializable]
+    [Obsolete]
     public sealed class Components : ISerializable, IEnumerable
     {
         readonly Dictionary<Type, object> _map;

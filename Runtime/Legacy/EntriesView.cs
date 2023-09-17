@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 
-namespace Fury
+namespace Fury.Legacy
 {
+    [Obsolete]
     public sealed class EntriesView<TEntry, TView> where TEntry : class
     {
         public delegate TView AddView(Identity<TEntry> id, TEntry model);

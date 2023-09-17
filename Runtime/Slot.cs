@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Fury
+namespace Fury.Legacy
 {
+    [Obsolete]
     public struct Slot<T> : IEnumerable<T> where T : Delegate
     {
         internal List<T> _actions;

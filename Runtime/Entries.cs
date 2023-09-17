@@ -1,134 +1,154 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Fury
 {
-    [Serializable]
     [JsonConverter(typeof(EntriesJsonConverter))]
-    public sealed class Entries<T> :
-        ISerializable,
-        IEnumerable<T>,
-        IEnumerable
+    public sealed partial class Entries<T>
+        : IEnumerable<T>
         where T : class
     {
-        internal readonly List<T> _list;
-        internal readonly List<Identity<T>> _idList;
-        internal readonly Dictionary<Identity<T>, T> _map;
-        internal readonly HashSet<Identity<T>> _marked = new HashSet<Identity<T>>();
+        long _version;
+        public long Version => _version;
 
-        public Entries()
+        public const int CursorsLimit = 64;
+
+        readonly List<(Identity<T> Id, T Entry)> _list = new List<(Identity<T>, T)>();
+        readonly Dictionary<Identity<T>, T> _dict = new Dictionary<Identity<T>, T>();
+
+        readonly HashSet<Cursor> _cursors = new HashSet<Cursor>();
+        readonly Stack<Cursor> _cursorsPool = new Stack<Cursor>();
+
+        readonly SortedSet<int> _emptyCells = new SortedSet<int>(new IntComparer());
+        sealed class IntComparer : IComparer<int>
         {
-            _list = new List<T>();
-            _idList = new List<Identity<T>>();
-            _map = new Dictionary<Identity<T>, T>();
+            public int Compare(int x, int y) => y - x;
         }
 
-        public void Add(Identity<T> id, T item) {
-            _map.Add(id, item);
-            _list.Add(item);
-            _idList.Add(id);
+        public T this[Identity<T> id] => _dict[id];
+        public bool TryGet(Identity<T> id, out T entry) => _dict.TryGetValue(id, out entry);
+
+        public Enumerator GetEnumerator() => new Enumerator(this, GetCursor());
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this, GetCursor());
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this, GetCursor());
+
+        public IEnumerable<Identity<T>> Ids => _dict.Keys;
+
+        Cursor GetCursor()
+        {
+            if (_cursors.Count >= CursorsLimit)
+            {
+                throw new Exception("To many nested enumerators or you forget call IEnumerator.Dispose()");
+            }
+            if (!_cursorsPool.TryPop(out var cursor))
+            {
+                cursor = new Cursor();
+            }
+            cursor.Reset();
+            _cursors.Add(cursor);
+            return cursor;
         }
 
-        public void Insert(int index, Identity<T>id, T item)
+        void ReleaseCursor(Cursor cursor)
         {
-            _map.Add(id, item);
-            _list.Insert(index, item);
-            _idList.Insert(index, id);
-        }
-
-        public void Mark(Identity<T> id)
-        {
-            _marked.Add(id);
-        }
-
-        public bool Contains(Identity<T> id)
-        {
-            return _map.ContainsKey(id);
-        }
-
-        public bool TryGet(Identity<T> id, out T item)
-        {
-            return _map.TryGetValue(id, out item);
-        }
-
-        public int Count => _list.Count;
-
-        public T this[Identity<T> id] => _map[id];
-
-        public T this[int index] => _list[index];
-
-        public int IndexOf(T e) => _list.IndexOf(e);
-
-        public int IndexOf(Identity<T> id) => _idList.IndexOf(id);
-
-        public void RemoveMarked()
-        {
-            if (_marked.Count == 0)
+            if (!_cursors.Remove(cursor))
             {
                 return;
             }
-            foreach (var id in _marked)
-            {
-                _map.Remove(id, out var item);
-                _list.Remove(item);
-                _idList.Remove(id);
-            }
-            _marked.Clear();
-        }            
+            _cursorsPool.Push(cursor);
 
-        public void Remove(Identity<T> id)
-        {
-            _map.Remove(id, out var item);
-            _list.Remove(item);
-            _idList.Remove(id);
+            if (_cursors.Count == 0 && _emptyCells.Count > 0)
+            {
+                RemoveEmptyCells();
+            }
         }
 
-        public void RemoveAt(int index)
+        void RemoveEmptyCells()
         {
-            var id = _idList[index];
-            _map.Remove(id);
-            _list.RemoveAt(index);
-            _idList.RemoveAt(index);
+            foreach (var index in _emptyCells)
+            {
+                _list.RemoveAt(index);
+            }
+            _emptyCells.Clear();
+        }
+
+        int FindIndexOf(Identity<T> id)
+        {
+            foreach (var cursor in _cursors)
+            {
+                if (cursor.Id == id)
+                {
+                    return cursor.Index;
+                }
+            }
+            for (var i = 0; i < _list.Count; i++)
+            {
+                var e = _list[i];
+                if (e.Id == id)
+                {
+                    return i;
+                }
+            }
+            throw new ArgumentOutOfRangeException(id.ToString());
+        }
+
+        public void Add(Identity<T> id, T entry)
+        {
+            if (id == Identity<T>.Null)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+            if (entry == null)
+            {
+                throw new ArgumentNullException(nameof(entry));
+            }
+            _dict.Add(id, entry);
+            _list.Add((id, entry));
+
+            _version++;
+        }
+
+        public bool Remove(Identity<T> id)
+        {
+            if (!_dict.Remove(id))
+            {
+                return false;
+            }
+            var index = FindIndexOf(id);
+            if (_cursors.Count == 0)
+            {
+                _list.RemoveAt(index);
+            } else
+            {
+                _list[index] = default;
+                _emptyCells.Add(index);
+            }
+
+            _version++;
+            return true;
         }
 
         public void Clear()
         {
-            _map.Clear();
-            _list.Clear();
-            _idList.Clear();
-            _marked.Clear();
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return _list.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _list.GetEnumerator();
-        }
-
-        public IEnumerable<Identity<T>> Ids => _idList;
-
-        public Entries(SerializationInfo info, StreamingContext context)
-        {
-            _list = (List<T>)info.GetValue(nameof(_list), typeof(List<T>));
-            _idList = (List<Identity<T>>)info.GetValue(nameof(_idList), typeof(List<Identity<T>>));
-            _map = new Dictionary<Identity<T>, T>();
-            for (var i = 0; i < _list.Count; i++)
+            _dict.Clear();
+            if (_cursors.Count == 0)
             {
-                _map.Add(_idList[i], _list[i]);
+                _list.Clear();
+            } else
+            {
+                for (var i = 0; i < _list.Count; i++)
+                {
+                    var e = _list[i];
+                    if (e.Entry != null)
+                    {
+                        _list[i] = default;
+                        _emptyCells.Add(i);
+                    }
+                }
             }
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue(nameof(_list), _list);
-            info.AddValue(nameof(_idList), _idList);
+            _version++;
         }
     }
 }

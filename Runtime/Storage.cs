@@ -3,8 +3,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-namespace Fury
+namespace Fury.Legacy
 {
+    [Obsolete]
     public static class Storage
     {
         public static readonly MemoryStream _ms = new MemoryStream();
