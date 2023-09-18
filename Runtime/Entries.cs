@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Fury
 {
@@ -34,7 +35,7 @@ namespace Fury
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this, GetCursor());
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this, GetCursor());
 
-        public IEnumerable<Identity<T>> Ids => _dict.Keys;
+        public IEnumerable<Identity<T>> Ids => _list.Where(e => e.Entry != null).Select(e => e.Id);
 
         Cursor GetCursor()
         {
