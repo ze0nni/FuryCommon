@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine.Profiling;
 
 namespace Fury
 {
@@ -18,6 +19,8 @@ namespace Fury
                 Index = -1;
             }
         }
+
+        readonly static string SampleNameForeach = $"Entries<{typeof(T).Name}> foreach";
 
         public struct Enumerator : IEnumerator<T>
         {
@@ -57,11 +60,16 @@ namespace Fury
                 var count = list.Count;
                 while (true)
                 {
+                    if (_index == -1)
+                    {
+                        Profiler.BeginSample(SampleNameForeach);
+                    }
                     _index++;
                     if (_index >= count)
                     {
                         _current = null;
                         _cursor.Reset();
+                        Profiler.EndSample();
                         return false;
                     }
                     var e = list[_index];
