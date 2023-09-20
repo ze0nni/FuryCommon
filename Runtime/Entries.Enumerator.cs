@@ -80,6 +80,10 @@ namespace Fury
                     _current = e.Entry;
                     _cursor.Id = e.Id;
                     _cursor.Index = _index;
+                    if (_entries._isJournalled)
+                    {
+                        _entries._indexCache[e.Id] = _index;
+                    }
                     return true;
                 }
             }

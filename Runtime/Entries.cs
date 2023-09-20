@@ -57,8 +57,9 @@ namespace Fury
         readonly Stack<Cursor> _cursorsPool = new Stack<Cursor>();
 
         readonly List<int> _emptyCells = new List<int>();
-        readonly Dictionary<Identity<T>, int> _indexCache = new Dictionary<Identity<T>, int>();
         readonly List<(Identity<T>, T Entry)> _journal = new List<(Identity<T>, T Entry)>();
+
+        readonly Dictionary<Identity<T>, int> _indexCache = new Dictionary<Identity<T>, int>();
 
         int _count;
         public int Count => _count;
@@ -70,7 +71,7 @@ namespace Fury
         {
             _insertMode = insertMode;
             _journalMode = journalMode;
-            _isJournalled = journalMode == JournalMode.OnRead || _journalMode == JournalMode.Allways;
+            _isJournalled = journalMode == JournalMode.OnRead || journalMode == JournalMode.Allways;
         }
 
         public T this[Identity<T> id] => _dict[id];
@@ -186,14 +187,14 @@ namespace Fury
             switch (_journalMode)
             {
                 case JournalMode.Never:
-                    InternalRemove(id);
+                    InternalRemove(id, false);
                     _version++;
                     break;
 
                 case JournalMode.OnRead:
                     if (_cursors.Count == 0)
                     {
-                        InternalRemove(id);
+                        InternalRemove(id, false);
                         _version++;
                     } else
                     {
@@ -267,7 +268,7 @@ namespace Fury
                     InternalAdd(id, entry);
                 } else
                 {
-                    InternalRemove(id);
+                    InternalRemove(id, true);
                 }
                 Profiler.EndSample();
             }
@@ -282,6 +283,7 @@ namespace Fury
                     _list.RemoveAt(i);
                 }
                 _emptyCells.Clear();
+                _indexCache.Clear();
                 Profiler.EndSample();
             }
 
@@ -347,19 +349,16 @@ namespace Fury
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void InternalRemove(Identity<T> id)
+        void InternalRemove(Identity<T> id, bool keepEmptyCell)
         {
             Profiler.BeginSample(SampleNameInternallRemove);
             if (_dict.Remove(id))
             {
                 var index = FindIndexOf(id);
-                if (_cursors.Count == 0 && _insertMode == InsertMode.Tail)
+                if (_cursors.Count == 0 && _insertMode == InsertMode.Tail && !keepEmptyCell)
                 {
                     _list.RemoveAt(index);
-                    if (_isJournalled)
-                    {
-                        _indexCache.Clear();
-                    }
+                    _indexCache.Clear();
                 }
                 else
                 {
