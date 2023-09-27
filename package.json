@@ -1,13 +1,17 @@
 {
-  "name": "com.pixelrebels.fcommon",
-  "author": "ze0nni",
-  "displayName": "FuryCommon",
-  "description": "FuryCommon -- Common types",
-  "version": "0.1.5",
-  "keywords": [],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ze0nni/FuryCommon.git"
-  },
-  "type": "tool"
+    "name": "com.pixelrebels.fcommon",
+    "author": {
+        "name": "Onni",
+        "email": "ze0nni@gmail.com",
+        "url": "https://pixel-rebels.com/"
+    },
+    "displayName": "FuryCommon",
+    "description": "Common types for game develpment",
+    "version": "0.1.5",
+    "keywords": [],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ze0nni/FuryCommon.git"
+    },
+    "type": "tool"
 }
