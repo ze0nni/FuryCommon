@@ -42,7 +42,7 @@ namespace Fury
 
         static Archetypes()
         {
-            Assets.RequestEquatable<K>("K", typeof(Archetypes<T, K>));
+            Asserts.RequestEquatable<K>("K", typeof(Archetypes<T, K>));
         }
     }
 }

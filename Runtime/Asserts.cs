@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Fury
 {
-    public static class Assets
+    public static class Asserts
     {
         public static void RequestEquatable<T>(string name, Type context)
         {
