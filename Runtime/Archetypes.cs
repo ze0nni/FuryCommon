@@ -32,7 +32,7 @@ namespace Fury
         }
 
         public T this[K kind] { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _byKind[kind]; }
-        public T this[Type type] { [MethodImpl(MethodImplOptions.AggressiveInlining)]get => _byType[type]; }
+        public T this[Type type] { [MethodImpl(MethodImplOptions.AggressiveInlining)] get => _byType[type]; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public R Resolve<R>() where R : T => (R)_byType[typeof(R)];
 

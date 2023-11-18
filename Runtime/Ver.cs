@@ -1,12 +1,13 @@
 using Newtonsoft.Json;
 using System;
-using System.Runtime.Serialization;
 
 namespace Fury
 {
     [Serializable]
     [JsonConverter(typeof(VerJsonConverter))]
     public struct Ver<T>
+        : IEquatable<Ver<T>>,
+        IComparable<Ver<T>>
     {
         public int V;
 
@@ -62,6 +63,16 @@ namespace Fury
 
             var version = (Ver<T>)obj;
             return V == version.V;
+        }
+
+        public bool Equals(Ver<T> other)
+        {
+            return this.V == other.V;
+        }
+
+        public int CompareTo(Ver<T> other)
+        {
+            return this.V.CompareTo(other.V);
         }
 
         public override int GetHashCode()

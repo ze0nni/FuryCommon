@@ -44,6 +44,9 @@ namespace Fury
         long _version;
         public long Version => _version;
 
+        int _readonly;
+        public bool Readonly => _readonly > 0;
+
         readonly InsertMode _insertMode;
         readonly JournalMode _journalMode;
         readonly bool _isJournalled;
@@ -153,6 +156,10 @@ namespace Fury
             {
                 throw new ArgumentNullException(nameof(entry));
             }
+            if (_readonly > 0)
+            {
+                throw new NotSupportedException("Is readonly");
+            }
             switch (_journalMode)
             {
                 case JournalMode.Never:
@@ -182,6 +189,10 @@ namespace Fury
             if (id == Identity<T>.Null)
             {
                 throw new ArgumentNullException(nameof(id));
+            }
+            if (_readonly > 0)
+            {
+                throw new NotSupportedException("Is readonly");
             }
 
             switch (_journalMode)
@@ -213,6 +224,10 @@ namespace Fury
             if (_cursors.Count > 0)
             {
                 throw new InvalidOperationException("Collection is reading");
+            }
+            if (_readonly > 0)
+            {
+                throw new NotSupportedException("Is readonly");
             }
 
             _journal.Clear();
